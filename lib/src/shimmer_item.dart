@@ -9,24 +9,19 @@ class ShimmerItem extends StatelessWidget {
   const ShimmerItem({
     Key? key,
     required this.child,
-    this.borderRadius,
-    this.color,
+    this.decoration,
     this.enabled = true,
   }) : super(key: key);
 
   final Widget child;
   final bool enabled;
-  final Color? color;
-  final BorderRadius? borderRadius;
+  final Decoration? decoration;
 
   @override
   Widget build(BuildContext context) {
     return enabled
         ? DecoratedBox(
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: borderRadius,
-            ),
+            decoration: decoration ?? const BoxDecoration(),
             position: DecorationPosition.foreground,
             child: child,
           )

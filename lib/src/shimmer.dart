@@ -12,13 +12,7 @@ class Shimmer extends StatelessWidget {
     return AnimatedBuilder(
       animation: ShimmerController.of(context)?.animation ??
           (throw ArgumentError("ShimmerController ancestor not found")),
-      builder: (_, child) {
-        return _Shimmer(
-          shader: ShimmerController.of(context)?.shader ??
-              (throw ArgumentError("ShimmerController ancestor not found")),
-          child: child,
-        );
-      },
+      builder: (_, child) => _Shimmer(child: child),
       child: child,
     );
   }
@@ -27,22 +21,19 @@ class Shimmer extends StatelessWidget {
 class _Shimmer extends SingleChildRenderObjectWidget {
   const _Shimmer({
     Key? key,
-    required this.shader,
     Widget? child,
   }) : super(key: key, child: child);
 
-  final Shader shader;
-
   @override
   _ShimmerRenderObject createRenderObject(BuildContext context) {
-    return _ShimmerRenderObject(shader);
+    return _ShimmerRenderObject(context);
   }
 }
 
 class _ShimmerRenderObject extends RenderProxyBox {
-  _ShimmerRenderObject(this.shader);
+  _ShimmerRenderObject(this.context);
 
-  final Shader shader;
+  final BuildContext context;
 
   @override
   ShaderMaskLayer? get layer => super.layer as ShaderMaskLayer?;
@@ -57,7 +48,7 @@ class _ShimmerRenderObject extends RenderProxyBox {
 
       layer ??= ShaderMaskLayer();
       layer!
-        ..shader = shader
+        ..shader = ShimmerController.of(context)?.shader
         ..maskRect = offset & size
         ..blendMode = BlendMode.srcIn;
       paintingContext.pushLayer(layer!, super.paint, offset);

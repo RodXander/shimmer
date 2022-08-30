@@ -22,7 +22,7 @@ class ShimmerController extends StatefulWidget {
 class _ShimmerControllerState extends State<ShimmerController>
     with SingleTickerProviderStateMixin {
   late AnimationController animation;
-  late Map<double, Shader> cacheShader;
+  Map<double, Shader> cacheShader = {};
 
   Shader get shader {
     if (!cacheShader.containsKey(animation.value)) {

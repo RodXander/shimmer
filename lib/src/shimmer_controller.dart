@@ -43,7 +43,7 @@ class _ShimmerControllerState extends State<ShimmerController>
     animation = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
-    );
+    )..forward();
     super.initState();
   }
 

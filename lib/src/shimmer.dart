@@ -28,12 +28,19 @@ class _Shimmer extends SingleChildRenderObjectWidget {
   _ShimmerRenderObject createRenderObject(BuildContext context) {
     return _ShimmerRenderObject(context);
   }
+
+  @override
+  void updateRenderObject(
+      BuildContext context, covariant RenderObject renderObject) {
+    renderObject.markNeedsPaint();
+    super.updateRenderObject(context, renderObject);
+  }
 }
 
 class _ShimmerRenderObject extends RenderProxyBox {
-  _ShimmerRenderObject(this.context);
+  _ShimmerRenderObject(this._context);
 
-  final BuildContext context;
+  final BuildContext _context;
 
   @override
   ShaderMaskLayer? get layer => super.layer as ShaderMaskLayer?;
@@ -48,7 +55,7 @@ class _ShimmerRenderObject extends RenderProxyBox {
 
       layer ??= ShaderMaskLayer();
       layer!
-        ..shader = ShimmerController.of(context)?.shader
+        ..shader = ShimmerController.of(_context)?.shader
         ..maskRect = offset & size
         ..blendMode = BlendMode.srcIn;
       paintingContext.pushLayer(layer!, super.paint, offset);

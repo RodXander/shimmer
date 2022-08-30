@@ -21,11 +21,12 @@ class ShimmerController extends StatefulWidget {
 
 class _ShimmerControllerState extends State<ShimmerController>
     with SingleTickerProviderStateMixin {
-  late AnimationController animation;
-  Map<double, Shader> cacheShader = {};
+  late Animation animation;
+  late AnimationController _animationController;
+  final Map<double, Shader> _cacheShader = {};
 
   Shader get shader {
-    if (!cacheShader.containsKey(animation.value)) {
+    if (!_cacheShader.containsKey(animation.value)) {
       var newShader = LinearGradient(
         colors: widget.gradient.colors,
         stops: widget.gradient.stops,
@@ -40,23 +41,25 @@ class _ShimmerControllerState extends State<ShimmerController>
           context.size?.height ?? 0,
         ),
       );
-      cacheShader[animation.value] = newShader;
+      _cacheShader[animation.value] = newShader;
     }
-    return cacheShader[animation.value]!;
+    return _cacheShader[animation.value]!;
   }
 
   @override
   void initState() {
-    animation = AnimationController(
+    _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
-    )..repeat();
+    );
+    animation = Tween(begin: -0.5, end: 1.5).animate(_animationController);
+    _animationController.repeat();
     super.initState();
   }
 
   @override
   void dispose() {
-    animation.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 

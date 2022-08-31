@@ -5,8 +5,10 @@ class ShimmerController extends StatefulWidget {
     Key? key,
     required this.child,
     required this.gradient,
+    this.enabled = true,
   }) : super(key: key);
 
+  final bool enabled;
   final Widget child;
   final LinearGradient gradient;
 
@@ -45,7 +47,11 @@ class _ShimmerControllerState extends State<ShimmerController>
       duration: const Duration(milliseconds: 1000),
     );
     animation = Tween(begin: -0.5, end: 1.5).animate(_animationController);
-    _animationController.repeat();
+
+    if (widget.enabled) {
+      _animationController.repeat();
+    }
+
     super.initState();
   }
 
@@ -53,6 +59,16 @@ class _ShimmerControllerState extends State<ShimmerController>
   void dispose() {
     _animationController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant ShimmerController oldWidget) {
+    if (widget.enabled) {
+      _animationController.repeat();
+    } else {
+      _animationController.reset();
+    }
+    super.didUpdateWidget(oldWidget);
   }
 
   @override

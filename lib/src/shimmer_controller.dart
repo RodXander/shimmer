@@ -23,28 +23,20 @@ class _ShimmerControllerState extends State<ShimmerController>
     with SingleTickerProviderStateMixin {
   late Animation animation;
   late AnimationController _animationController;
-  final Map<double, Shader> _cacheShader = {};
 
-  Shader get shader {
-    if (!_cacheShader.containsKey(animation.value)) {
-      var newShader = LinearGradient(
+  LinearGradient get gradient => LinearGradient(
         colors: widget.gradient.colors,
         stops: widget.gradient.stops,
         begin: widget.gradient.begin,
         end: widget.gradient.end,
         transform: _SlidingGradientTransform(slidePercent: animation.value),
-      ).createShader(
-        Rect.fromLTWH(
-          0,
-          0,
-          context.size?.width ?? 0,
-          context.size?.height ?? 0,
-        ),
       );
-      _cacheShader[animation.value] = newShader;
-    }
-    return _cacheShader[animation.value]!;
-  }
+  Size get size => context.size!;
+
+  Offset getDescendantOffset(RenderBox descendant) => descendant.localToGlobal(
+        Offset.zero,
+        ancestor: context.findRenderObject(),
+      );
 
   @override
   void initState() {
@@ -81,9 +73,11 @@ class _ShimmerControllerData extends InheritedWidget {
 
   final _ShimmerControllerState state;
 
+  LinearGradient get gradient => state.gradient;
   Animation get animation => state.animation;
-
-  Shader get shader => state.shader;
+  Offset getDescendantOffset(RenderBox descendant) =>
+      state.getDescendantOffset(descendant);
+  Size get size => state.size;
 
   @override
   bool updateShouldNotify(_ShimmerControllerData oldWidget) =>

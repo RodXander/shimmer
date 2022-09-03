@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 
 class ShimmerController extends StatefulWidget {
@@ -5,10 +7,8 @@ class ShimmerController extends StatefulWidget {
     Key? key,
     required this.child,
     required this.gradient,
-    this.enabled = true,
   }) : super(key: key);
 
-  final bool enabled;
   final Widget child;
   final LinearGradient gradient;
 
@@ -17,23 +17,28 @@ class ShimmerController extends StatefulWidget {
     return context.dependOnInheritedWidgetOfExactType<_ShimmerControllerData>();
   }
 
+  // ignore: library_private_types_in_public_api
+  static _ShimmerControllerData? find(BuildContext context) {
+    return context.findAncestorWidgetOfExactType<_ShimmerControllerData>();
+  }
+
   @override
   State<ShimmerController> createState() => _ShimmerControllerState();
 }
 
 class _ShimmerControllerState extends State<ShimmerController>
     with SingleTickerProviderStateMixin {
-  late Animation animation;
+  late Animation _animation;
   late AnimationController _animationController;
 
-  LinearGradient get gradient => LinearGradient(
+  LinearGradient get _gradient => LinearGradient(
         colors: widget.gradient.colors,
         stops: widget.gradient.stops,
         begin: widget.gradient.begin,
         end: widget.gradient.end,
-        transform: _SlidingGradientTransform(slidePercent: animation.value),
+        transform: _SlidingGradientTransform(slidePercent: _animation.value),
       );
-  Size get size => context.size!;
+  Size get _size => context.size!;
 
   Offset getDescendantOffset(RenderBox descendant) => descendant.localToGlobal(
         Offset.zero,
@@ -46,11 +51,7 @@ class _ShimmerControllerState extends State<ShimmerController>
       vsync: this,
       duration: const Duration(milliseconds: 1000),
     );
-    animation = Tween(begin: -0.5, end: 1.5).animate(_animationController);
-
-    if (widget.enabled) {
-      _animationController.repeat();
-    }
+    _animation = Tween(begin: -0.5, end: 1.5).animate(_animationController);
 
     super.initState();
   }
@@ -59,16 +60,6 @@ class _ShimmerControllerState extends State<ShimmerController>
   void dispose() {
     _animationController.dispose();
     super.dispose();
-  }
-
-  @override
-  void didUpdateWidget(covariant ShimmerController oldWidget) {
-    if (widget.enabled) {
-      _animationController.repeat();
-    } else {
-      _animationController.reset();
-    }
-    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -81,19 +72,34 @@ class _ShimmerControllerState extends State<ShimmerController>
 }
 
 class _ShimmerControllerData extends InheritedWidget {
-  const _ShimmerControllerData({
+  _ShimmerControllerData({
     Key? key,
     required Widget child,
     required this.state,
   }) : super(key: key, child: child);
 
+  final HashSet<BuildContext> _shimmers = HashSet();
   final _ShimmerControllerState state;
 
-  LinearGradient get gradient => state.gradient;
-  Animation get animation => state.animation;
+  LinearGradient get gradient => state._gradient;
+  Animation get animation => state._animation;
   Offset getDescendantOffset(RenderBox descendant) =>
       state.getDescendantOffset(descendant);
-  Size get size => state.size;
+  Size get size => state._size;
+
+  void registerShimmer(BuildContext context) {
+    _shimmers.add(context);
+    if (_shimmers.isNotEmpty && !state._animationController.isAnimating) {
+      state._animationController.repeat();
+    }
+  }
+
+  void unregisterShimmer(BuildContext context) {
+    _shimmers.remove(context);
+    if (_shimmers.isEmpty && state._animationController.isAnimating) {
+      state._animationController.reset();
+    }
+  }
 
   @override
   bool updateShouldNotify(_ShimmerControllerData oldWidget) =>

@@ -15,9 +15,11 @@ class Shimmer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!enabled) {
+      ShimmerController.find(context)?.unregisterShimmer(context);
       return child;
     }
 
+    ShimmerController.of(context)?.registerShimmer(context);
     return AnimatedBuilder(
       animation: ShimmerController.of(context)?.animation ??
           (throw ArgumentError("ShimmerController ancestor not found")),

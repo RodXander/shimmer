@@ -97,7 +97,7 @@ class _ShimmerControllerData extends InheritedWidget {
   void unregisterShimmer(BuildContext context) {
     _shimmers.remove(context);
     if (_shimmers.isEmpty && state._animationController.isAnimating) {
-      state._animationController.reset();
+      state._animationController.stop();
     }
   }
 
